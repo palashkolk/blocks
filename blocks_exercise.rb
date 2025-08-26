@@ -76,10 +76,49 @@ a_lambda = -> { return 1 } # rubocop:disable Style/RedundantReturn
 puts a_lambda.call
 
 def my_method
-  a_proc = proc { return }
+  a_proc = proc { return 1 }
   puts 'this line will be printed'
   a_proc.call # line returns from the embracing method
   puts 'this line is never reached'
 end
 
 my_method
+
+def outer_method
+  a_proc = proc { return }
+  puts 'Only this line will be printed'
+
+  inner_method(a_proc)
+  puts 'this line is never reached'
+end
+
+def inner_method(proc)
+  proc.call
+  puts 'this line is also never reached'
+end
+
+outer_method # proc returns from inner_method to global scope
+
+my_proc = proc { |name = 'sabir'| puts name }
+my_proc.call
+my_lambda = ->(name = 'r2d2') { puts name }
+my_lambda.call
+## Procs and lambdas can be used as arguments to a method
+#
+#
+def my_method(useful_arg)
+  useful_arg.call
+end
+my_lambda = ->(name = 'lambda') { puts name }
+my_proc = proc { |name = 'proc'| puts name }
+
+my_method(my_lambda)
+my_method(my_proc)
+
+### capturing blocks with &; &block always goes last if there
+# are other parameters (explicit block)
+def cool_method(noun, &my_block)
+  puts my_block.call + noun
+end
+
+cool_method 'beans', { 'cool' }
